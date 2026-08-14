@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연주시차 — 선생님용 제출물 정리</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%82%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/app.css">
+<style>
+  .filters { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+  .filters label { display: flex; flex-direction: column; gap: 6px; font-size: 17px; font-weight: bold; }
+  .filters select, .filters input { min-width: 130px; }
+
+  table.list { width: 100%; border-collapse: collapse; font-size: 18px; }
+  table.list th, table.list td { border: 1px solid var(--line); padding: 9px 10px; text-align: center; }
+  table.list th { background: var(--band); cursor: pointer; user-select: none; white-space: nowrap; }
+  table.list th:hover { background: #e0e7ff; }
+  table.list td.left { text-align: left; }
+  table.list tr.dim td { color: var(--faint); background: #fafafa; }
+
+  .sum { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+  .sumcard { border: 2px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fff; }
+  .sumcard .big { font-size: 32px; font-weight: bold; color: var(--brand); }
+  .sumcard .lb { font-size: 17px; color: var(--sub); }
+
+  .bad { font-size: 17px; color: var(--no); }
+  ul.badlist { margin: 8px 0 0; padding-left: 22px; font-size: 17px; color: var(--sub); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🗂️ 제출물 정리</h1>
+  <span class="badge">연주시차 · 선생님용 · 파일 이름만 읽습니다</span>
+  <span class="spacer"></span>
+  <a class="home" href="index.html">📐 실험실</a>
+  <a class="home" href="worksheet.html">📝 학습지</a>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>1. 모은 PDF 를 불러오세요</h2>
+    <p class="lead">
+      학생이 낸 PDF 를 한 폴더에 모아 두고 <b>[폴더 고르기]</b> 를 누르세요.
+    </p>
+    <div class="hint">
+      이 페이지는 <b>파일 이름만</b> 읽습니다. PDF 를 열지 않고, 아무것도 서버로 보내지 않으며,
+      <b>학생 정보를 저장하지 않습니다.</b> 새로고침하면 목록은 사라집니다.
+      그래서 인터넷 없이 파일을 더블클릭해서 열어도 그대로 동작합니다.
+    </div>
+
+    <div class="btnrow">
+      <input type="file" id="fileInput" multiple accept="application/pdf" hidden>
+      <input type="file" id="dirInput" webkitdirectory directory multiple hidden>
+      <button type="button" class="btn primary big" id="btnDir">폴더 고르기</button>
+      <button type="button" class="btn" id="btnFiles">파일 고르기</button>
+      <button type="button" class="btn ghost" id="btnClear">목록 비우기</button>
+    </div>
+
+    <p id="readMsg" class="lead" style="margin-top:14px"></p>
+    <div id="badBox" hidden>
+      <p class="bad"><b>읽지 못한 파일</b> — 이름 형식이 달라 정보를 뽑을 수 없었습니다.</p>
+      <ul class="badlist" id="badList"></ul>
+    </div>
+  </div>
+
+  <div class="card" id="cardSum" hidden>
+    <h2>2. 요약</h2>
+    <div class="sum" id="sum"></div>
+  </div>
+
+  <div class="card" id="cardList" hidden>
+    <h2>3. 제출 목록</h2>
+
+    <div class="filters" style="margin-bottom:16px">
+      <label>종류
+        <select id="fKind"><option value="">전체</option></select>
+      </label>
+      <label>학년
+        <select id="fGrade"><option value="">전체</option></select>
+      </label>
+      <label>반
+        <select id="fCls"><option value="">전체</option></select>
+      </label>
+      <label>여러 번 낸 경우
+        <select id="fDup">
+          <option value="last">최종 제출만</option>
+          <option value="first">최초 제출만</option>
+          <option value="all">전부 보기</option>
+        </select>
+      </label>
+      <button type="button" class="btn" id="btnCsv">CSV 내려받기</button>
+    </div>
+
+    <p class="lead" id="dupMsg"></p>
+
+    <div class="tablescroll">
+      <table class="list" id="list"></table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>파일 이름 규칙</h2>
+    <p class="lead">학생 화면이 만드는 PDF 는 아래 형식입니다. 이름만으로 정렬·집계가 됩니다.</p>
+    <div class="tablescroll">
+      <table class="grid">
+        <tr><th>자료</th><th>파일 이름 예시</th></tr>
+        <tr><td class="left">연주시차 학습지</td><td class="left">연주시차학습지_3-4-12_홍길동_20260814_1420.pdf</td></tr>
+      </table>
+    </div>
+    <div class="warnbox">
+      이 페이지는 <b>점수를 집계하지 않습니다.</b> 누가 냈는지·언제 냈는지만 정리하고,
+      내용은 PDF 를 열어 읽어 주세요.
+      학습지의 <b>객관식·O/X·숫자 문항 19개는 학생 화면에서 자동 채점</b>되어
+      PDF 첫 쪽 오른쪽에 <b>자동 채점 n / 19</b> 으로 찍혀 있습니다.
+      서술 4문항·표 1개는 선생님이 읽고 판단하는 부분입니다.
+    </div>
+    <div class="hint">
+      <b>PDF 마지막 쪽에 정답과 해설이 함께 들어 있습니다.</b>
+      학생이 제출하는 순간 화면에서도 정답이 열리므로, 채점하실 때 학생이 무엇을 보았는지 그대로 확인하실 수 있습니다.
+    </div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   제출물 정리 도구
+   ---------------------------------------------------------
+   파일 이름만 읽는다. 내용을 열지 않고, 저장·전송도 하지 않는다.
+   그래서 서버 없이(file:// 더블클릭) 동작한다.
+   ========================================================= */
+
+/* 연주시차학습지_3-4-12_홍길동_20260814_1420.pdf
+   브라우저가 중복 다운로드에 붙이는 " (1)" 도 받아들인다.
+   ⚠ 이 정규식은 PdfKit.makeFileName 의 형식을 전제한다. 한쪽을 바꾸면 다른 쪽도 고칠 것 */
+var NAME_RE = /^([^_]+)_(\d+)-(\d+)-(\d+)_([^_]+)_(\d{8})_(\d{4})(?:\s*\(\d+\))?\.pdf$/i;
+
+var rows = [];        // 읽어 낸 제출물
+var bad = [];         // 읽지 못한 파일 이름
+var sortKey = "when";
+var sortAsc = true;
+
+function parseName(fname) {
+  var m = NAME_RE.exec(fname);
+  if (!m) return null;
+  var d = m[6], t = m[7];
+  return {
+    kind: m[1],
+    grade: +m[2],
+    cls: +m[3],
+    num: +m[4],
+    name: m[5],
+    when: d + t,                                     // 정렬용
+    whenText: d.slice(0, 4) + "-" + d.slice(4, 6) + "-" + d.slice(6, 8) +
+              " " + t.slice(0, 2) + ":" + t.slice(2, 4),
+    file: fname
+  };
+}
+
+/* 같은 학생 + 같은 종류 = 같은 과제. 그 안에서 제출 순서를 매긴다 */
+function keyOf(r) { return r.kind + "|" + r.grade + "-" + r.cls + "-" + r.num + "|" + r.name; }
+
+/* 같은 학생 + 같은 종류 + 같은 제출 시각 = 같은 제출물.
+   브라우저가 중복 내려받기에 붙이는 "… (1).pdf" 를 별개 제출로 세지 않기 위한 것이다. */
+function sigOf(r) { return keyOf(r) + "|" + r.when; }
+
+function markDuplicates() {
+  var groups = {};
+  rows.forEach(function (r) {
+    var k = keyOf(r);
+    (groups[k] = groups[k] || []).push(r);
+  });
+  Object.keys(groups).forEach(function (k) {
+    var g = groups[k].sort(function (a, b) { return a.when.localeCompare(b.when); });
+    g.forEach(function (r, i) {
+      r.tries = g.length;
+      r.tryNo = i + 1;
+      r.isFirst = (i === 0);
+      r.isLast = (i === g.length - 1);
+    });
+  });
+}
+
+/* ---------------------------------------------------------
+   파일 읽기 — 이름만 본다
+   --------------------------------------------------------- */
+function addFiles(fileList) {
+  var added = 0, skipped = 0, merged = 0;
+  Array.prototype.forEach.call(fileList, function (f) {
+    if (!/\.pdf$/i.test(f.name)) { skipped++; return; }
+    if (rows.some(function (r) { return r.file === f.name; })) return;   // 같은 파일 두 번 방지
+    var r = parseName(f.name);
+    if (!r) {
+      if (bad.indexOf(f.name) < 0) bad.push(f.name);
+      return;
+    }
+    /* 같은 학생·같은 종류·같은 시각이면 복사본이므로 한 건으로 본다 */
+    if (rows.some(function (x) { return sigOf(x) === sigOf(r); })) { merged++; return; }
+    rows.push(r);
+    added++;
+  });
+
+  markDuplicates();
+  render();
+
+  document.getElementById("readMsg").innerHTML =
+    "읽은 제출물 <b>" + rows.length + "건</b>" +
+    (added ? " (이번에 " + added + "건 추가)" : "") +
+    (merged ? " · 같은 제출물의 복사본 " + merged + "건을 한 건으로 묶음" : "") +
+    (bad.length ? " · 읽지 못한 파일 " + bad.length + "건" : "") +
+    (skipped ? " · PDF 가 아니어서 건너뛴 파일 " + skipped + "건" : "");
+
+  document.getElementById("badBox").hidden = bad.length === 0;
+  var bl = document.getElementById("badList");
+  bl.innerHTML = "";
+  bad.forEach(function (n) {
+    var li = document.createElement("li");
+    li.textContent = n;
+    bl.appendChild(li);
+  });
+}
+
+document.getElementById("btnDir").addEventListener("click", function () {
+  document.getElementById("dirInput").click();
+});
+document.getElementById("btnFiles").addEventListener("click", function () {
+  document.getElementById("fileInput").click();
+});
+["dirInput", "fileInput"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", function (e) {
+    addFiles(e.target.files);
+    e.target.value = "";                     // 같은 폴더를 다시 고를 수 있게
+  });
+});
+document.getElementById("btnClear").addEventListener("click", function () {
+  rows = [];
+  bad = [];
+  render();
+  document.getElementById("readMsg").textContent = "";
+  document.getElementById("badBox").hidden = true;
+});
+
+/* ---------------------------------------------------------
+   화면 그리기
+   --------------------------------------------------------- */
+function uniqueSorted(getter) {
+  var s = {};
+  rows.forEach(function (r) { s[getter(r)] = true; });
+  return Object.keys(s).sort();
+}
+
+function fillSelect(id, values, keepAll) {
+  var sel = document.getElementById(id);
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">전체</option>';
+  values.forEach(function (v) {
+    var o = document.createElement("option");
+    o.value = v;
+    o.textContent = keepAll ? v : v;
+    sel.appendChild(o);
+  });
+  if (values.indexOf(cur) >= 0) sel.value = cur;
+}
+
+function visibleRows() {
+  var kind = document.getElementById("fKind").value;
+  var grade = document.getElementById("fGrade").value;
+  var cls = document.getElementById("fCls").value;
+  var dup = document.getElementById("fDup").value;
+
+  return rows.filter(function (r) {
+    if (kind && r.kind !== kind) return false;
+    if (grade && String(r.grade) !== grade) return false;
+    if (cls && String(r.cls) !== cls) return false;
+    if (dup === "last" && !r.isLast) return false;
+    if (dup === "first" && !r.isFirst) return false;
+    return true;
+  });
+}
+
+function render() {
+  var has = rows.length > 0;
+  document.getElementById("cardSum").hidden = !has;
+  document.getElementById("cardList").hidden = !has;
+  if (!has) return;
+
+  fillSelect("fKind", uniqueSorted(function (r) { return r.kind; }));
+  fillSelect("fGrade", uniqueSorted(function (r) { return String(r.grade); }));
+  fillSelect("fCls", uniqueSorted(function (r) { return String(r.cls); }));
+
+  var vis = visibleRows();
+
+  /* ---- 요약 ---- */
+  var students = {};
+  vis.forEach(function (r) { students[r.grade + "-" + r.cls + "-" + r.num] = true; });
+  var kinds = {};
+  vis.forEach(function (r) { kinds[r.kind] = (kinds[r.kind] || 0) + 1; });
+  var classes = {};
+  vis.forEach(function (r) {
+    var k = r.grade + "학년 " + r.cls + "반";
+    classes[k] = classes[k] || {};
+    classes[k][r.grade + "-" + r.cls + "-" + r.num] = true;
+  });
+
+  var sum = document.getElementById("sum");
+  sum.innerHTML = "";
+  function sumCard(big, lb) {
+    var d = document.createElement("div");
+    d.className = "sumcard";
+    d.innerHTML = '<div class="big">' + big + '</div><div class="lb">' + lb + "</div>";
+    sum.appendChild(d);
+  }
+  sumCard(vis.length + "건", "보고 있는 제출물");
+  sumCard(Object.keys(students).length + "명", "제출한 학생 수 (중복 제외)");
+  Object.keys(classes).sort().forEach(function (k) {
+    sumCard(Object.keys(classes[k]).length + "명", k + " 제출 인원");
+  });
+  Object.keys(kinds).sort().forEach(function (k) {
+    sumCard(kinds[k] + "건", k);
+  });
+
+  /* ---- 여러 번 낸 학생 안내 ---- */
+  var manyKeys = {};
+  rows.forEach(function (r) { if (r.tries > 1) manyKeys[keyOf(r)] = true; });
+  var manyCount = Object.keys(manyKeys).length;
+  document.getElementById("dupMsg").innerHTML = manyCount
+    ? "⚠ 같은 과제를 여러 번 낸 경우가 <b>" + manyCount + "건</b> 있습니다. 위의 <b>[여러 번 낸 경우]</b> 로 기준을 고르세요."
+    : "여러 번 낸 학생은 없습니다.";
+
+  /* ---- 표 ---- */
+  var cols = [
+    { k: "kind",  t: "종류" },
+    { k: "who",   t: "학년-반-학번" },
+    { k: "name",  t: "이름" },
+    { k: "when",  t: "제출 시각" },
+    { k: "tries", t: "제출 횟수" },
+    { k: "file",  t: "파일 이름" }
+  ];
+
+  var sorted = vis.slice().sort(function (a, b) {
+    var av, bv;
+    if (sortKey === "who") {
+      av = a.grade * 10000 + a.cls * 100 + a.num;
+      bv = b.grade * 10000 + b.cls * 100 + b.num;
+    } else {
+      av = a[sortKey]; bv = b[sortKey];
+    }
+    if (typeof av === "string") return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+    return sortAsc ? av - bv : bv - av;
+  });
+
+  var t = document.getElementById("list");
+  t.innerHTML = "";
+  var hr = t.insertRow();
+  cols.forEach(function (c) {
+    var th = document.createElement("th");
+    th.textContent = c.t + (sortKey === c.k ? (sortAsc ? " ▲" : " ▼") : "");
+    th.addEventListener("click", function () {
+      if (sortKey === c.k) sortAsc = !sortAsc;
+      else { sortKey = c.k; sortAsc = true; }
+      render();
+    });
+    hr.appendChild(th);
+  });
+
+  sorted.forEach(function (r) {
+    var tr = t.insertRow();
+    if (r.tries > 1 && !r.isLast) tr.className = "dim";
+    var order = r.tries > 1
+      ? r.tries + "회 (" + (r.isFirst ? "최초" : (r.isLast ? "최종" : "중간")) + ")"
+      : "1회";
+    [r.kind,
+     r.grade + "-" + r.cls + "-" + PdfPad(r.num),
+     r.name,
+     r.whenText,
+     order,
+     r.file
+    ].forEach(function (v, i) {
+      var td = tr.insertCell();
+      td.textContent = v;
+      if (i === 5) td.className = "left";
+    });
+  });
+}
+
+function PdfPad(n) { return (n < 10 ? "0" : "") + n; }
+
+["fKind", "fGrade", "fCls", "fDup"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", render);
+});
+
+/* ---------------------------------------------------------
+   CSV 내려받기 (엑셀에서 한글이 깨지지 않게 BOM 을 붙인다)
+   --------------------------------------------------------- */
+document.getElementById("btnCsv").addEventListener("click", function () {
+  var vis = visibleRows();
+  if (!vis.length) return;
+
+  var head = ["종류", "학년", "반", "학번", "이름", "제출시각", "제출횟수", "최종제출", "파일명"];
+  var lines = [head.join(",")];
+
+  vis.forEach(function (r) {
+    lines.push([
+      r.kind, r.grade, r.cls, r.num, r.name, r.whenText,
+      r.tries, (r.isLast ? "예" : "아니오"), r.file
+    ].map(function (v) {
+      var s = String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(","));
+  });
+
+  var blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "제출현황_" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+});
+</script>
+</body>
+</html>

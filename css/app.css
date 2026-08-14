@@ -1,0 +1,689 @@
+/* =========================================================
+   app.css — ai-class 공용 스타일
+   교실 TV·전자칠판에서 보이도록 글씨와 단추를 크게 잡는다.
+   (기준 글자 크기 20px, 단추 최소 높이 56px)
+   ========================================================= */
+
+:root {
+  --ink: #111827;
+  --sub: #4b5563;
+  --faint: #9ca3af;
+  --line: #d1d5db;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --band: #eef2ff;
+  --brand: #4f46e5;
+  --brand-dark: #4338ca;
+  --ok: #059669;
+  --ok-bg: #ecfdf5;
+  --no: #dc2626;
+  --no-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --radius: 14px;
+  --shadow: 0 2px 10px rgba(0, 0, 0, .07);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding: 0 0 90px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", sans-serif;
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+/* ---------- 머리글 ---------- */
+.top {
+  background: var(--brand);
+  color: #fff;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.top h1 { margin: 0; font-size: 30px; letter-spacing: -.5px; }
+.top .badge {
+  background: rgba(255, 255, 255, .22);
+  border-radius: 999px;
+  padding: 5px 16px;
+  font-size: 17px;
+  white-space: nowrap;
+}
+.top .spacer { flex: 1 1 auto; }
+.top a.home {
+  color: #fff;
+  text-decoration: none;
+  border: 2px solid rgba(255, 255, 255, .6);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 18px;
+}
+.top a.home:hover { background: rgba(255, 255, 255, .18); }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 22px 18px 0; }
+
+/* ---------- 카드 ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  margin: 0 0 22px;
+}
+.card > h2 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.card > h2 .step {
+  background: var(--brand);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 18px;
+  padding: 3px 12px;
+  white-space: nowrap;
+}
+.card > p.lead { margin: 0 0 16px; color: var(--sub); font-size: 19px; }
+
+.hint {
+  background: var(--band);
+  border-left: 6px solid var(--brand);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  font-size: 19px;
+  color: var(--sub);
+}
+.hint b { color: var(--ink); }
+
+.warnbox {
+  background: var(--warn-bg);
+  border-left: 6px solid var(--warn);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  font-size: 18px;
+}
+
+/* ---------- 단추 ---------- */
+.btn {
+  font: inherit;
+  font-size: 20px;
+  min-height: 56px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform .05s ease, background .15s ease;
+}
+.btn:hover { background: #f3f4f6; }
+.btn:active { transform: translateY(1px); }
+.btn:disabled, .btn[aria-disabled="true"] {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.btn.primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  font-weight: bold;
+}
+.btn.primary:hover { background: var(--brand-dark); }
+.btn.big { font-size: 23px; min-height: 66px; padding: 14px 32px; }
+.btn.ghost { background: transparent; }
+.btn.on {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  font-weight: bold;
+}
+.btnrow { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 16px 0 0; }
+
+/* ---------- 입력 ---------- */
+input[type="text"], input[type="number"], textarea, select {
+  font: inherit;
+  font-size: 20px;
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus {
+  outline: 3px solid #c7d2fe;
+  border-color: var(--brand);
+}
+textarea { min-height: 120px; resize: vertical; line-height: 1.65; }
+label { font-size: 19px; }
+
+/* ---------- 표 ---------- */
+table.grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 19px;
+  background: #fff;
+}
+table.grid th, table.grid td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+table.grid th { background: var(--band); font-size: 18px; }
+table.grid td.left { text-align: left; }
+.tablescroll { overflow-x: auto; }
+
+/* ---------- 채점 표시 ---------- */
+.mark-ok { color: var(--ok); font-weight: bold; }
+.mark-no { color: var(--no); font-weight: bold; }
+.res {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 19px;
+}
+.res.ok { background: var(--ok-bg); border-left: 6px solid var(--ok); }
+.res.no { background: var(--no-bg); border-left: 6px solid var(--no); }
+
+/* ---------- 손글씨 판 ---------- */
+.pad-tools { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 8px; align-items: center; }
+.pad-btn {
+  font: inherit;
+  font-size: 17px;
+  min-height: 46px;
+  padding: 8px 14px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+.pad-btn.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: bold; }
+.pad-color {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px var(--line);
+  cursor: pointer;
+}
+.pad-color.on { box-shadow: 0 0 0 4px var(--brand); }
+canvas.pad {
+  width: 100%;
+  aspect-ratio: 1400 / 420;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  touch-action: none;      /* 펜으로 그릴 때 화면이 밀리지 않게 */
+  display: block;
+}
+
+/* ---------- 학생정보 모달 ---------- */
+.modal-back {
+  position: fixed; inset: 0;
+  background: rgba(17, 24, 39, .55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; z-index: 100;
+}
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 26px 28px;
+  max-width: 620px; width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .3);
+}
+.modal h2 { margin: 0 0 10px; font-size: 26px; }
+.modal-note {
+  background: var(--band);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 18px;
+  color: var(--sub);
+  margin: 0 0 18px;
+}
+.si-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.si-grid label { display: flex; flex-direction: column; gap: 6px; font-weight: bold; }
+.modal-warn { color: var(--no); font-size: 18px; margin: 12px 0 0; }
+.modal-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
+
+/* ---------- 알림 막대 ---------- */
+#toast {
+  position: fixed;
+  left: 50%; bottom: 24px;
+  transform: translateX(-50%) translateY(140%);
+  background: var(--ink);
+  color: #fff;
+  padding: 16px 26px;
+  border-radius: 12px;
+  font-size: 20px;
+  max-width: 90vw;
+  transition: transform .25s ease;
+  z-index: 200;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.no { background: var(--no); }
+#toast.warn { background: var(--warn); }
+
+/* ---------- 홈 화면 차시 카드 ---------- */
+.lessons { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px; }
+.lesson {
+  display: block;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.lesson:hover { border-color: var(--brand); transform: translateY(-2px); }
+.lesson .no {
+  display: inline-block;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 8px;
+  padding: 3px 12px;
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+.lesson h3 { margin: 4px 0 6px; font-size: 22px; }
+.lesson p { margin: 0; font-size: 17px; color: var(--sub); }
+.lesson .tools { margin-top: 12px; font-size: 16px; color: var(--brand); font-weight: bold; }
+.lesson.off { opacity: .62; }
+.lesson.off .no { background: var(--faint); }
+
+/* ---------- 좁은 화면 ---------- */
+@media (max-width: 640px) {
+  body { font-size: 18px; }
+  .top h1 { font-size: 24px; }
+  .wrap { padding: 16px 12px 0; }
+  .card { padding: 16px 15px; }
+  .si-grid { grid-template-columns: 1fr; }
+  .btn { font-size: 18px; min-height: 52px; }
+}
+
+/* =========================================================
+   아래부터 전자기 유도 실험실 전용 스타일
+   (앞쪽 절반은 ai-class 공용 스타일 — EnergyKeeper 와 같은 파일이다.
+    공용 부분을 고칠 일이 생기면 양쪽에 같이 반영할 것)
+   ========================================================= */
+
+/* ---------- 장면 고르기 탭 ---------- */
+.scenes { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 18px; }
+.scene-btn {
+  font: inherit; font-size: 20px; min-height: 60px;
+  padding: 10px 22px; border-radius: 999px;
+  border: 2px solid var(--line); background: #fff; color: var(--ink);
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+}
+.scene-btn:hover { border-color: var(--brand); }
+.scene-btn.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: bold; }
+.scene-btn .em { font-size: 24px; }
+
+/* ---------- 무대 + 계기판 2단 배치 ---------- */
+.stage-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 18px; align-items: start; }
+@media (max-width: 1080px) { .stage-wrap { grid-template-columns: 1fr; } }
+
+.stage {
+  position: relative;
+  background: #0f172a;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+/* ⚠ 무대의 가로:세로 비율은 **CSS 가 정한다.**
+   자바스크립트에서 style.height 를 직접 넣으면, 그 변경이 다시 ResizeObserver 를 깨워
+   크기가 서로를 밀어내는 되먹임이 생긴다(실제로 태블릿 폭에서 그림이 옆으로 눌렸다).
+   여기서 비율을 고정하고, 스크립트는 '보이는 크기'를 읽어 캔버스 해상도만 맞춘다. */
+canvas#stage { display: block; width: 100%; aspect-ratio: 1.62; touch-action: none; cursor: crosshair; }
+/* 좁은 화면에서는 무대를 더 **높게** 잡는다.
+   코일·회로·검류계가 세로로 쌓이는 그림이라, 가로만 좁아지면 아래위가 잘린다. */
+@media (max-width: 720px) { canvas#stage { aspect-ratio: 1.05; } }
+.stage-tip {
+  position: absolute; left: 14px; bottom: 12px;
+  background: rgba(15, 23, 42, .78); color: #fff;
+  font-size: 16px; padding: 7px 14px; border-radius: 999px;
+  pointer-events: none;
+}
+
+/* ---------- 계기판 ---------- */
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 18px 16px; }
+.panel h3 { margin: 0 0 4px; font-size: 21px; display: flex; align-items: center; gap: 8px; }
+.panel + .panel { margin-top: 16px; }
+.panel .sub { margin: 0 0 12px; font-size: 16px; color: var(--sub); }
+
+.bars { display: flex; flex-direction: column; gap: 12px; margin: 6px 0 4px; }
+.bar-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: center; }
+.bar-name { font-size: 17px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+.bar-name .dot { width: 15px; height: 15px; border-radius: 4px; flex: none; }
+.bar-track { position: relative; background: #eef2f7; border-radius: 8px; height: 40px; overflow: hidden; }
+.bar-fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 8px; }
+.bar-val {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 18px; font-weight: bold; color: var(--ink);
+  text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 0 4px #fff;
+}
+.bar-row.total .bar-track { height: 46px; box-shadow: inset 0 0 0 3px #a7f3d0; }
+
+.readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 0; }
+.ro { background: var(--band); border-radius: 10px; padding: 9px 12px; }
+.ro b { display: block; font-size: 15px; color: var(--sub); font-weight: normal; }
+.ro span { font-size: 24px; font-weight: bold; font-variant-numeric: tabular-nums; }
+
+.formula {
+  background: #0f172a; color: #e2e8f0;
+  border-radius: 10px; padding: 12px 14px; margin-top: 14px;
+  font-size: 17px; line-height: 1.9; font-variant-numeric: tabular-nums;
+}
+.formula .k { color: #93c5fd; font-weight: bold; }
+.formula .r { color: #fca5a5; font-weight: bold; }
+.formula .t { color: #86efac; font-weight: bold; }
+.formula em { font-style: normal; color: #94a3b8; }
+
+canvas.graph {
+  width: 100%; aspect-ratio: 340 / 170;
+  background: #fff; border: 2px solid var(--line); border-radius: 10px; display: block;
+}
+
+/* ---------- 조작 ---------- */
+.ctl { margin: 14px 0 0; }
+.ctl > label { display: flex; justify-content: space-between; align-items: baseline; font-size: 17px; font-weight: bold; margin-bottom: 4px; }
+.ctl > label span { font-weight: normal; color: var(--brand); font-size: 19px; font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; height: 34px; accent-color: #4f46e5; cursor: pointer; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  font: inherit; font-size: 17px; min-height: 48px; padding: 6px 14px;
+  border: 2px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink);
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+}
+.chip:hover { border-color: var(--brand); }
+.chip.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: bold; }
+.toggles { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.toggles label { display: flex; align-items: center; gap: 10px; font-size: 17px; cursor: pointer; }
+.toggles input[type="checkbox"] { width: 24px; height: 24px; accent-color: #4f46e5; }
+
+.playbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; }
+.playbar .btn { min-height: 60px; font-size: 20px; }
+
+/* ---------- 미션 ---------- */
+.mission-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin: 0 0 16px; }
+.mcard {
+  border: 2px solid var(--line); border-radius: 12px; background: #fff;
+  padding: 12px 14px; cursor: pointer; text-align: left; font: inherit;
+}
+.mcard:hover { border-color: var(--brand); }
+.mcard.on { border-color: var(--brand); background: var(--band); }
+.mcard.done { border-color: var(--ok); background: var(--ok-bg); }
+.mcard .mno { font-size: 15px; color: var(--sub); }
+.mcard .mtitle { font-size: 18px; font-weight: bold; display: block; margin-top: 2px; }
+.mcard .mstar { font-size: 20px; }
+
+.mission-body { background: var(--band); border-radius: 12px; padding: 16px 18px; margin: 0 0 16px; }
+.mission-body h3 { margin: 0 0 6px; font-size: 23px; }
+.mission-body p { margin: 0 0 10px; font-size: 19px; }
+.predict { background: #fff; border-radius: 10px; padding: 14px 16px; margin-top: 12px; }
+.predict .q { font-weight: bold; font-size: 19px; margin-bottom: 10px; }
+.predict .opts { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  font: inherit; font-size: 18px; text-align: left; padding: 12px 16px; min-height: 54px;
+  border: 2px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer;
+}
+.opt:hover { border-color: var(--brand); }
+.opt.on { border-color: var(--brand); background: var(--band); font-weight: bold; }
+.opt.right { border-color: var(--ok); background: var(--ok-bg); }
+.opt.wrong { border-color: var(--no); background: var(--no-bg); }
+
+.verdict { margin-top: 12px; padding: 14px 16px; border-radius: 10px; font-size: 19px; }
+.verdict.ok { background: var(--ok-bg); border-left: 6px solid var(--ok); }
+.verdict.no { background: var(--no-bg); border-left: 6px solid var(--no); }
+.verdict b { display: block; font-size: 21px; margin-bottom: 4px; }
+
+/* ---------- 실험 기록 표 ---------- */
+.reclist { margin-top: 12px; }
+.reclist table { width: 100%; }
+.hidden { display: none !important; }
+
+/* ---------- 검류계 (가운데가 0 인 좌우 막대) ----------
+   에너지 막대와 달리 전류는 **방향(부호)** 이 뜻을 가진다.
+   그래서 한쪽에서 자라는 막대가 아니라 가운데에서 좌우로 뻗는 막대를 쓴다.
+   자석을 넣을 때와 뺄 때 막대가 반대쪽으로 넘어가는 것이 이 앱의 첫 번째 관찰 목표다. */
+.galv { margin: 4px 0 8px; }
+.galv-track {
+  position: relative; height: 46px; background: #eef2f7;
+  border-radius: 8px; overflow: hidden;
+}
+.galv-zero {
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 3px; margin-left: -1.5px; background: #94a3b8; z-index: 2;
+}
+.galv-fill {
+  position: absolute; top: 6px; bottom: 6px; left: 50%; width: 0;
+  background: linear-gradient(90deg, #f87171, #dc2626);
+  border-radius: 5px; transition: none;
+}
+.galv-fill.left {
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+.galv-scale {
+  display: flex; justify-content: space-between;
+  font-size: 14px; color: var(--sub); margin-top: 5px;
+}
+.galv-read {
+  text-align: center; font-size: 18px; margin: 2px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.galv-read span { font-size: 30px; font-weight: bold; }
+.galv-read em { font-style: normal; color: var(--sub); font-size: 18px; }
+.galv-read b { display: block; font-size: 18px; min-height: 27px; }
+.galv-read b.left { color: #2563eb; }
+.galv-read b.right { color: #dc2626; }
+
+/* 계기판 숫자 뒤의 단위 (장면에 따라 글자가 바뀐다) */
+.ro i { font-style: normal; font-size: 15px; color: var(--sub); }
+
+/* ---------- 미션 목표 체크리스트 ---------- */
+.goal {
+  font-size: 18px; padding: 7px 0; color: var(--sub);
+}
+.goal.ok { color: var(--ok); font-weight: bold; }
+
+/* ---------- 에너지 전환 안내 ---------- */
+.convert {
+  margin: 12px 0 0; padding: 10px 13px; border-radius: 9px;
+  background: var(--band); font-size: 16px; color: var(--sub);
+}
+.convert.on { background: var(--ok-bg); color: var(--ink); }
+.convert b { color: var(--ink); }
+
+/* 인쇄할 때만 나오는 것 (화면에서는 감춘다) */
+.print-only { display: none; }
+
+/* =========================================================
+   🖨️ 학습지 인쇄 (`@media print`)
+   ---------------------------------------------------------
+   태블릿이 없는 교실에서 **종이로 뽑아 손으로 푸는** 용도다.
+   화면의 단추·안내·머리글을 걷어내고 '쓸 자리'를 만든다.
+
+   ⚠ 이 블록은 EnergyKeeper 의 app.css 와 **같은 내용**이다.
+     두 학습지의 DOM 구조(renderItem 이 만드는 것)가 같아서 그대로 통한다.
+     한쪽을 고치면 양쪽에 반영할 것.
+
+   설계 메모
+     · 제출 전에 인쇄하면 **빈 학습지**, 제출 뒤에 인쇄하면 **정답·해설까지** 나온다.
+       `.ans` 가 화면에서 열려 있으면 그대로 따라 나가기 때문이다. 스위치를 따로 두지 않았다.
+     · 객관식·O/X 는 앞에 **네모 칸**을 그린다. 240장을 훑을 때 동그라미보다 눈에 빨리 들어온다.
+     · 문항이 쪽 경계에서 잘리지 않도록 `.qbox` 에 `break-inside: avoid` 를 준다.
+   ========================================================= */
+@media print {
+  @page { size: A4 portrait; margin: 14mm 12mm 15mm; }
+
+  /* 글자 크기를 한 번에 정한다. 여기만 키우면 전체가 같이 커진다.
+     9pt · 줄간격 1.35 는 **전자기 유도 학습지(22문항)를 A4 두 쪽에 넣기 위한** 값이다.
+     문항을 늘리면 다시 넘칠 수 있으니, 늘린 뒤에는 인쇄 미리보기로 쪽수를 확인할 것. */
+  html, body {
+    background: #fff !important;
+    color: #000;
+    font-size: 9pt;
+    line-height: 1.35;
+    margin: 0;
+    padding: 0;
+  }
+
+  .no-print, .top, .savebar, #toast, .modal-back { display: none !important; }
+  .print-only { display: block !important; }
+
+  .wrap { max-width: none; margin: 0; padding: 0; }
+  .card {
+    background: #fff;
+    border: 0; box-shadow: none; border-radius: 0;
+    padding: 0; margin: 0;
+  }
+
+  /* ---- 인쇄용 머리글 (이름 쓰는 칸) ---- */
+  .print-head { margin: 0 0 3mm; }
+  .print-head h1 { font-size: 13pt; margin: 0 0 .8mm; }
+  .print-head .sub { font-size: 8pt; color: #333; margin: 0 0 1.5mm; }
+  .print-head .who {
+    border: 1pt solid #000;
+    padding: 1.5mm 2.5mm;
+    font-size: 9.5pt;
+    letter-spacing: .5px;
+  }
+
+  /* ---- 단계 제목 ---- */
+  #sheet > h2 {
+    font-size: 10.5pt;
+    margin: 2.5mm 0 1.2mm;
+    padding-bottom: .6mm;
+    border-bottom: 1.2pt solid #000;
+    break-after: avoid; page-break-after: avoid;
+  }
+  #sheet > h2 .step {
+    background: #000 !important; color: #fff !important;
+    font-size: 8.5pt; padding: 0 1.5mm; border-radius: 2px;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  #sheet > p.lead { font-size: 7.5pt; color: #222; margin: 0 0 1.2mm; }
+
+  /* ---- 문항 ---- */
+  .qbox {
+    break-inside: avoid; page-break-inside: avoid;
+    border-top: 0; padding: 0; margin: 0 0 1.5mm;
+  }
+  .qtitle { font-size: 9pt; line-height: 1.25; margin: 0 0 .8mm; }
+  .qno {
+    background: #fff !important; color: #000 !important;
+    border: 1pt solid #000; border-radius: 2px;
+    padding: 0 1.2mm; font-size: 8.5pt; margin-right: 1.5mm;
+  }
+
+  /* ---- 객관식 : 앞에 고르는 네모 · **두 단**으로 앉힌다 ----
+     선택지를 한 줄에 하나씩 두면 22문항이 네 쪽으로 불어난다.
+     두 단으로 접으면 세로가 거의 절반이 된다. 길이가 제각각이라
+     `columns` (다단)로 흘려 보내는 것이 flex 격자보다 잘 맞는다. */
+  .opts {
+    display: block !important;
+    columns: 2; column-gap: 6mm;
+  }
+  .opt {
+    display: block; width: 100%;
+    border: 0 !important; background: #fff !important;
+    min-height: 0; margin: 0;
+    padding: .15mm 0 .15mm 4.6mm;
+    font-size: 8pt; line-height: 1.25; text-align: left;
+    position: relative;
+    break-inside: avoid;         /* 선택지가 단 경계에서 잘리지 않게 */
+  }
+  .opt::before {
+    content: "";
+    position: absolute; left: .3mm; top: .75mm;
+    width: 2.4mm; height: 2.4mm;
+    border: 1pt solid #000;
+  }
+  /* O/X 는 두 개뿐이라 다단으로 접지 않고 가로로 나란히 둔다 */
+  .opts.ox-row { display: flex !important; columns: auto; gap: 14mm !important; }
+  .ox-row .opt { width: auto; text-align: left; font-size: 9.5pt; }
+
+  /* ---- 숫자 : 밑줄에 적는다 ---- */
+  .numwrap input {
+    border: 0 !important;
+    border-bottom: 1pt solid #000 !important;
+    border-radius: 0; width: 26mm; padding: 0 1mm;
+    font-size: 9.5pt;
+  }
+  .numwrap .unit { font-size: 9.5pt; }
+
+  /* ---- 서술 : 줄 친 빈 칸 (두 줄) ----
+     ⚠ 글자 크기와 줄 간격을 **여기서 직접** 정해야 한다.
+       화면용 `input, textarea { font-size: 20px }` 규칙을 물려받으면
+       칸 하나가 24mm 로 부풀어 쪽수가 통째로 늘어난다(실제로 그랬다).
+     줄무늬 간격(6.2mm)은 line-height 와 같은 값이라 글씨가 줄 위에 앉는다. */
+  textarea {
+    border: 1pt solid #000 !important;
+    border-radius: 0;
+    font-size: 9pt; line-height: 6.2mm;
+    min-height: 12mm; height: 12.4mm; width: 100%;
+    padding: 0 1.5mm;
+    background:
+      repeating-linear-gradient(#fff 0, #fff 6.2mm, #bbb 6.2mm, #bbb 6.4mm) !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+
+  /* ---- 표 ---- */
+  .tablescroll { overflow: visible !important; }
+  table.grid { font-size: 10pt; }
+  table.grid th, table.grid td { border: .8pt solid #000; padding: .6mm; font-size: 8pt; line-height: 1.25; }
+  table.grid th {
+    background: #e8e8e8 !important;
+    font-size: 8pt;            /* 화면용 18px 규칙이 남으면 머리글만 커진다 */
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  table.grid td input {
+    border: 0 !important; background: transparent !important;
+    width: 100%; min-height: 4.5mm; padding: 0;
+    font-size: 8pt;            /* 이것도 화면용 20px 을 물려받으면 표가 부푼다 */
+  }
+
+  /* ---- 그림 : 높이를 묶어 둔다 ----
+     화면에서는 폭에 맞춰 커지지만, 종이에서는 그림 하나가 쪽의 4분의 1을 먹는다.
+     viewBox 가 있어 높이만 정해 주면 비율은 알아서 유지된다. */
+  .fig {
+    background: #fff !important;
+    border: .8pt solid #666;
+    padding: 1mm;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  /* 높이 30mm 는 **그림 속 글자가 읽히는 최소선**이다.
+     viewBox 높이가 220 이고 글자가 20 이라, 30mm 로 두면 글자가 약 2.7mm(≈7.7pt)가 된다.
+     더 줄이면 쪽수는 벌지만 '코일'·'검류계' 같은 이름표가 읽히지 않는다. */
+  .fig svg {
+    height: 30mm; width: auto; max-width: 100%;
+    display: block; margin: 0 auto;
+  }
+
+  /* ---- 제출 뒤에 인쇄하면 정답·해설도 따라 나간다 ---- */
+  .scoreband { background: #fff !important; border: 1pt solid #000; font-size: 11pt; }
+  .ans {
+    background: #fff !important;
+    border: .8pt solid #666; border-left-width: 2.5pt;
+    font-size: 9.5pt; padding: 2mm 3mm;
+    break-inside: avoid;
+  }
+  .ans.hidden { display: none !important; }
+  .opt.right { font-weight: bold; }
+  .opt.right::before { background: #000 !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

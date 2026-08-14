@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연주시차 실험실</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div class="top">
+  <h1>📐 연주시차 실험실</h1>
+  <span class="badge">중학교 3학년 과학 · 별과 우주</span>
+  <span class="spacer"></span>
+  <a class="home" href="worksheet.html" target="px-worksheet" data-win>📝 학습지 ↗</a>
+  <a class="home" href="teacher.html">선생님용 ▸</a>
+</div>
+
+<div class="wrap">
+
+  <!-- ================= 장면 고르기 ================= -->
+  <div class="scenes" id="scenes">
+    <button type="button" class="scene-btn on" data-scene="desk"><span class="em">👀</span> 책상 위 시차</button>
+    <button type="button" class="scene-btn" data-scene="orbit"><span class="em">🌍</span> 연주시차</button>
+    <button type="button" class="scene-btn" data-scene="dist"><span class="em">📏</span> 연주시차와 거리</button>
+    <button type="button" class="scene-btn" data-scene="mission"><span class="em">🏆</span> 미션 도전</button>
+  </div>
+
+  <!-- ================= 미션 ================= -->
+  <div class="card hidden" id="missionCard">
+    <h2>🏆 미션 도전 <span class="step">깬 미션 <span id="missionScore">0 / 6</span></span></h2>
+    <p class="lead">먼저 <b>예측</b>하고, 실제로 <b>확인</b>하세요. 성공하면 이유가 열립니다.</p>
+    <div class="mission-list" id="missionList"></div>
+    <div class="mission-body hidden" id="missionBody">
+      <h3 id="mTitle"></h3>
+      <p id="mStory"></p>
+      <div class="predict hidden" id="mPredict">
+        <div class="q" id="mQ"></div>
+        <div class="opts" id="mOpts"></div>
+      </div>
+      <div class="predict hidden" id="mGoals"></div>
+      <div class="verdict hidden" id="mVerdict"></div>
+    </div>
+  </div>
+
+  <!-- ================= 무대 + 계기판 ================= -->
+  <div class="stage-wrap">
+
+    <div>
+      <div class="playbar">
+        <button type="button" class="btn" id="btnReset">↺ 처음으로</button>
+        <button type="button" class="btn" id="btnRecord">📋 지금 값 기록</button>
+      </div>
+
+      <div class="stage">
+        <canvas id="stage"></canvas>
+        <div class="stage-tip" id="tip"></div>
+      </div>
+
+      <!-- 실험 기록 -->
+      <div class="card" style="margin-top:18px">
+        <h2>📋 실험 기록 <span class="step">학습지에 옮겨 적기</span></h2>
+        <p class="lead">궁금한 값이 나오면 <b>📋 지금 값 기록</b>을 누르세요.</p>
+        <div class="tablescroll">
+          <table class="grid">
+            <thead>
+              <tr><th>번호</th><th>장면</th><th>대상</th><th>기선</th><th>거리</th><th>시차</th></tr>
+            </thead>
+            <tbody id="recBody"></tbody>
+          </table>
+        </div>
+        <p id="recEmpty" class="hint">아직 기록이 없습니다.</p>
+        <div class="btnrow"><button type="button" class="btn" id="btnClearRec">기록 지우기</button></div>
+      </div>
+
+      <!-- 개념 정리 -->
+      <div class="card">
+        <h2>🔎 무엇을 보고 있는 걸까?</h2>
+        <div class="hint">
+          <b>시차</b> — 관측하는 <b>자리가 달라지면</b> 물체가 배경에 대해 다른 자리에 있는 것처럼 보인다.
+          그 <b>각도의 차이</b>가 시차다.<br>
+          <b>연주시차</b> — 6개월 간격으로 별을 관측했을 때 생기는 시차 <b>∠ASB의 절반</b>.<br>
+          <b>파섹(pc)</b> — 연주시차가 <b>1″</b>인 별까지의 거리. 약 <b>3.26 광년</b>이다.
+        </div>
+        <div class="warnbox">
+          <b>이 앱의 결론은 두 가지입니다.</b><br>
+          ① <b>멀수록 시차가 작습니다.</b> 그래서 시차를 재면 거리를 알 수 있어요.
+          연주시차와 거리는 <b>반비례</b>하고, 아주 간단하게 <b>거리(pc) = 1 ÷ 연주시차(″)</b>가 됩니다.<br>
+          ② <b>두 관측 지점이 멀수록 시차가 커집니다.</b>
+          책상 위에서 구멍 사이를 벌리는 것과, 지구 대신 목성에서 재는 것은
+          <b>똑같은 이야기</b>입니다 — 잣대(기선)를 길게 만드는 것이죠.
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------- 계기판 ---------------- -->
+    <div>
+      <div class="panel">
+        <h3 id="gaugeTitle">📐 시차</h3>
+        <p class="sub" id="gaugeSub">관측 자리가 달라지면 얼마나 어긋나 보일까</p>
+        <div class="bars">
+          <div class="bar-row total">
+            <div class="bar-name"><span class="dot" style="background:#38bdf8"></span><span id="barName1">시차</span></div>
+            <div class="bar-track" id="barA">
+              <div class="bar-fill" style="background:linear-gradient(90deg,#7dd3fc,#0284c7)"></div>
+              <div class="bar-val">0</div>
+            </div>
+          </div>
+          <div class="bar-row" id="rowB">
+            <div class="bar-name"><span class="dot" style="background:#a78bfa"></span><span id="barName2">비교</span></div>
+            <div class="bar-track" id="barB">
+              <div class="bar-fill" style="background:linear-gradient(90deg,#ddd6fe,#7c3aed)"></div>
+              <div class="bar-val">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="readouts">
+          <div class="ro"><b id="roName1">거리</b><span id="roVal1">-</span><i id="roUnit1"></i></div>
+          <div class="ro"><b id="roName2">기선</b><span id="roVal2">-</span><i id="roUnit2"></i></div>
+          <div class="ro"><b id="roName3">시차</b><span id="roVal3">-</span><i id="roUnit3"></i></div>
+          <div class="ro"><b id="roName4">눈금</b><span id="roVal4">-</span><i id="roUnit4"></i></div>
+        </div>
+
+        <div class="formula">
+          <div id="fLaw"></div>
+          <div id="fWhy"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 id="graphTitle">📈 거리와 시차</h3>
+        <p class="sub" id="graphSub">멀수록 시차는 작아진다</p>
+        <canvas class="graph" id="graph"></canvas>
+      </div>
+
+      <div class="panel">
+        <h3>🎛️ 조작</h3>
+
+        <div class="ctl" data-for="desk mission" data-need="deskDist">
+          <label>별까지의 거리 <span id="valDeskDist">40 cm</span></label>
+          <input type="range" id="rngDeskDist" min="15" max="90" step="1" value="40">
+        </div>
+
+        <div class="ctl" data-for="desk mission" data-need="base">
+          <label>구멍 사이 간격 (기선) <span id="valBase">10 cm</span></label>
+          <input type="range" id="rngBase" min="2" max="24" step="1" value="10">
+        </div>
+
+        <div class="ctl" data-for="desk mission" data-need="eye">
+          <label>어느 구멍으로 볼까? <span></span></label>
+          <div class="chips" id="chipEye">
+            <button type="button" class="chip on" data-val="left">◀ 왼쪽 구멍</button>
+            <button type="button" class="chip" data-val="both">👀 둘 다</button>
+            <button type="button" class="chip" data-val="right">오른쪽 구멍 ▶</button>
+          </div>
+        </div>
+
+        <div class="ctl" data-for="orbit dist mission" data-need="star">
+          <label>별 고르기 <span></span></label>
+          <select id="selStar"></select>
+        </div>
+
+        <div class="ctl" data-for="orbit mission" data-need="month">
+          <label>지구는 어디에? <span></span></label>
+          <div class="chips" id="chipMonth">
+            <button type="button" class="chip on" data-val="A">🅐 1월</button>
+            <button type="button" class="chip" data-val="both">↔ 두 자리 겹쳐 보기</button>
+            <button type="button" class="chip" data-val="B">🅑 7월 (6개월 뒤)</button>
+          </div>
+        </div>
+
+        <div class="ctl" data-for="orbit mission" data-need="orbit">
+          <label>공전 궤도의 크기 <span id="valOrbit">1 배 (지구)</span></label>
+          <input type="range" id="rngOrbit" min="1" max="6" step="1" value="1">
+        </div>
+
+        <div class="hint" style="font-size:16px;margin-top:16px">
+          <b>1″(초)</b> 는 1도의 <b>3600분의 1</b> 입니다. 별의 연주시차는 그만큼 작은 각이에요.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /stage-wrap -->
+
+  <div class="card">
+    <h2>📚 이 실험은 무엇과 이어질까</h2>
+    <div class="tablescroll">
+      <table class="grid">
+        <tr><th>성취기준</th><th>내용</th><th>여기서 하는 일</th></tr>
+        <tr><td>[9과23-01]</td>
+            <td class="left">별의 거리를 구하는 방법을 알고, 별의 표면 온도를 색으로 비교할 수 있다</td>
+            <td class="left">👀 책상 위 시차 · 🌍 연주시차 · 📏 연주시차와 거리</td></tr>
+      </table>
+    </div>
+    <div class="hint">
+      소단원 <b>(1) 별은 얼마나 멀리 있을까?</b> 를 담았습니다.
+      같은 성취기준의 <b>(2) 별의 밝기와 색</b>은
+      <b>별의 밝기와 등급 실험실</b>에서 다룹니다.
+    </div>
+  </div>
+
+</div>
+
+<script src="js/pdf.js"></script>
+<script src="js/parallax.js"></script>
+<script src="js/lab.js"></script>
+</body>
+</html>

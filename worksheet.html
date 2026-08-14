@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연주시차 학습지</title>
+<link rel="stylesheet" href="css/app.css">
+<style>
+  .fig { background:#0f172a; border-radius:12px; padding:10px; margin:14px 0; }
+  .fig svg { width:100%; height:auto; display:block; }
+  .qbox { border-top:2px solid var(--line); padding-top:18px; margin-top:18px; }
+  .qbox:first-of-type { border-top:0; padding-top:0; margin-top:0; }
+  .qno { display:inline-block; background:var(--brand); color:#fff; border-radius:8px;
+         padding:2px 12px; font-size:17px; margin-right:8px; }
+  .qtitle { font-size:21px; font-weight:bold; margin:0 0 12px; }
+  .ox-row { display:flex; gap:12px; }
+  .ox-row .opt { flex:1; text-align:center; font-size:26px; font-weight:bold; }
+  .numwrap { display:flex; align-items:center; gap:12px; }
+  .numwrap input { max-width:220px; }
+  .numwrap .unit { font-size:22px; font-weight:bold; }
+  .ans { margin-top:12px; padding:12px 16px; border-radius:10px; font-size:18px; }
+  .ans.ok { background:var(--ok-bg); border-left:6px solid var(--ok); }
+  .ans.no { background:var(--no-bg); border-left:6px solid var(--no); }
+  .savebar {
+    position:sticky; bottom:0; background:#fff; border-top:2px solid var(--line);
+    padding:14px 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; z-index:50;
+    margin:0 -18px; box-shadow:0 -4px 14px rgba(0,0,0,.06);
+  }
+  .savebar .grow { flex:1 1 auto; font-size:18px; color:var(--sub); }
+  .scoreband { background:var(--band); border-radius:10px; padding:12px 16px; font-size:21px; font-weight:bold; margin:0 0 16px; }
+  .locked input, .locked textarea, .locked select { background:#f3f4f6; color:var(--sub); }
+
+  /* 그림은 화면에서 어두운 바탕 위에 밝은 선으로 그려져 있다.
+     종이는 흰 바탕이라 밝은 색만 어둡게 바꿔 준다.
+     (색 값으로 골라내므로 SVG 의 색을 바꾸면 여기도 함께 고쳐야 한다) */
+  @media print {
+    .fig text[fill="#e2e8f0"] { fill:#111 !important; }
+    .fig line[stroke="#94a3b8"] { stroke:#444 !important; }
+    .fig ellipse[stroke="#94a3b8"] { stroke:#666 !important; }
+
+    /* =====================================================
+       이 학습지는 **공용 인쇄값(9pt)을 그대로 쓴다.**
+       -----------------------------------------------------
+       앞선 두 앱(brightness 21문항 · EnergyKeeper 15문항)은 문항이 적어
+       둘째 쪽이 비길래 글자를 키웠지만, 이 학습지는 **24문항**으로 가장 많다.
+       10pt 로 키웠더니 562mm 가 되어 **세 쪽**으로 넘어갔다(측정값).
+       9pt 로 두면 두 쪽에 들어간다. 여기서는 크기를 덧쓰지 않는다.
+       ⚠ 문항을 더 늘리면 다시 세 쪽이 될 수 있으니 인쇄 쪽수를 반드시 다시 잴 것.
+       ===================================================== */
+    .fig svg { height: 30mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>📝 연주시차 학습지</h1>
+  <span class="badge">중학교 3학년 과학 · [9과23-01]</span>
+  <span class="spacer"></span>
+  <a class="home" href="index.html" target="px-lab" data-win>📐 실험실 열기 ↗</a>
+</div>
+
+<div class="wrap">
+
+  <div class="print-only print-head">
+    <h1>연주시차 학습지</h1>
+    <p class="sub">중학교 3학년 과학 · 별과 우주 [9과23-01] — 별은 얼마나 멀리 있을까?</p>
+    <div class="who">3학년 (　　　)반 　(　　　)번 　이름 (　　　　　　　　)</div>
+  </div>
+
+  <div class="card no-print">
+    <h2>이렇게 하세요</h2>
+    <div class="hint">
+      <b>1</b> 오른쪽 위 <b>📐 실험실 열기</b>를 눌러 실험실을 <b>새 창</b>으로 띄우고 나란히 놓습니다.<br>
+      <b>2</b> 문제를 <b>먼저 예측해서</b> 쓴 다음, 실험실에서 실제로 확인합니다.<br>
+      <b>3</b> 다 쓰면 맨 아래 <b>PDF로 저장하기</b>를 누릅니다. <b>저장하는 순간 정답과 해설이 열립니다.</b>
+    </div>
+    <div class="warnbox">
+      <b>제출은 한 번뿐입니다.</b> PDF를 저장하면 답을 고칠 수 없습니다.
+    </div>
+  </div>
+
+  <div class="scoreband hidden" id="scoreBand"></div>
+  <div class="card" id="sheet"></div>
+
+  <div class="savebar">
+    <span class="grow" id="saveMsg">다 썼으면 PDF로 저장해 제출하세요.</span>
+    <button type="button" class="btn" id="btnAnswers">정답 확인 (PDF 저장 후 열림) 🔒</button>
+    <button type="button" class="btn" id="btnClear">쓴 내용 지우기</button>
+    <button type="button" class="btn primary big" id="btnPdf">PDF로 저장하기</button>
+  </div>
+
+  <div class="card no-print" id="aboutCard">
+    <h2>ℹ️ 개인정보 안내</h2>
+    <p class="lead">
+      학년·반·학번·이름은 <b>PDF를 만드는 순간에만</b> 물어보고 <b>PDF 파일 안(과 파일 이름)에만</b> 들어갑니다.
+      이 기기(브라우저)에는 <b>저장하지 않습니다.</b>
+    </p>
+  </div>
+
+</div>
+
+<script src="js/pdf.js"></script>
+<script>
+/* =========================================================
+   worksheet.html — 학습지 문항 · 자동 채점 · PDF 제출
+   ---------------------------------------------------------
+   문항은 선생님의 종이 학습지
+   「Ⅶ. 별과 우주 / 1. 별과 우리은하 (1) 별은 얼마나 멀리 있을까?」
+   와 앞쪽의 <시차 측정 활동>의 차례를 그대로 따라간다 —
+     시차란 무엇인가 → 연주시차(가~라) → 거리 구하기 → 기선(목성) → 핵심 정리
+
+   ⚠ 채점 부담을 줄이려고 자동 채점 문항을 많이 두었다(17 / 21).
+   ========================================================= */
+(function () {
+  "use strict";
+  var K = window.PdfKit;
+
+  var SHEET = [
+    {
+      step: "1단계 · 시차란 무엇일까",
+      lead: "실험실의 👀 <b>책상 위 시차</b> 장면을 열어 두고 답하세요. " +
+            "선생님과 만든 <b>시차 측정 활동지</b>와 같은 장치입니다.",
+      figure: true,
+      items: [
+        { type: "choice", q: "<b>시차</b>란 무엇일까요?",
+          opts: ["물체가 실제로 움직인 거리",
+                 "<b>관측하는 자리가 달라져서</b> 물체가 배경에 대해 다른 자리에 있는 것처럼 보이는 <b>각도의 차이</b>",
+                 "물체의 밝기가 달라 보이는 정도"], ans: 1,
+          why: "관측 <b>자리</b>가 달라지면 물체가 먼 배경에 대해 다른 곳에 있는 것처럼 보입니다. " +
+               "그 <b>각도의 차이</b>가 시차입니다. 물체가 실제로 움직인 것은 아니에요." },
+        { type: "choice", q: "구멍과 별까지의 <b>거리가 멀수록</b> 시차는 어떻게 될까요?",
+          opts: ["커진다", "<b>작아진다</b>", "변하지 않는다"], ans: 1,
+          why: "<b>작아집니다.</b> 멀수록 두 시선이 이루는 각이 좁아지기 때문입니다." },
+        { type: "choice", q: "시차는 물체까지의 거리와 어떤 관계일까요? <b>수학적 용어</b>로 고르세요.",
+          opts: ["비례한다", "<b>반비례한다</b>", "아무 관계 없다"], ans: 1,
+          why: "<b>반비례</b>합니다. 거리가 2배가 되면 시차는 대략 절반이 됩니다.<br>" +
+               "그래서 거꾸로 <b>시차를 재면 거리를 알 수 있습니다.</b> 이것이 별까지의 거리를 재는 방법이에요." },
+        { type: "choice", q: "만약 <b>구멍 사이의 간격</b>이 더 넓어진다면 시차는 어떻게 될까요?",
+          opts: ["<b>커진다</b>", "작아진다", "변하지 않는다"], ans: 0,
+          why: "<b>커집니다.</b> 두 관측 지점이 멀리 떨어질수록 보는 방향의 차이가 커지기 때문입니다.<br>" +
+               "두 관측 지점 사이의 거리를 <b>기선</b>이라고 합니다." },
+        { type: "text", q: "별이 아주 멀리 있으면 시차가 너무 작아 측정하기 힘듭니다. " +
+               "<b>시차를 크게 만들려면</b> 어떻게 해야 할까요?",
+          why: "<b>기선(두 관측 지점 사이의 거리)을 길게</b> 하면 됩니다.<br>" +
+               "책상 위에서는 구멍 사이를 더 벌리면 되고, 하늘에서는 더 큰 궤도에서 관측하면 됩니다. " +
+               "4단계의 목성 문제가 바로 이 이야기입니다." }
+      ]
+    },
+    {
+      step: "2단계 · 연주시차",
+      lead: "실험실의 🌍 <b>연주시차</b> 장면에서 <b>두 자리 겹쳐 보기</b>로 확인하세요(미션 4).",
+      items: [
+        { type: "num", q: "지구가 A에 있을 때 별 S를 보고, 다시 B에서 볼 때까지 <b>몇 개월</b>이 지났을까요?",
+          unit: "개월", ans: 6, tol: 0.1,
+          why: "<b>6개월</b>입니다. 지구가 태양 둘레를 반 바퀴 돌아 궤도의 <b>반대편</b>에 오는 데 걸리는 시간이에요." },
+        { type: "choice", q: "지구에서 측정한 별 S의 시차 <b>∠ASB</b>와 <b>연주시차</b>의 관계는?",
+          opts: ["연주시차 = ∠ASB (그대로)", "연주시차 = ∠ASB 의 <b>절반</b>", "연주시차 = ∠ASB 의 <b>2배</b>"], ans: 1,
+          why: "<b>절반</b>입니다. 시차 전체는 지구 궤도의 <b>지름</b>을 기선으로 본 각이고, " +
+               "그 절반은 <b>반지름(1 AU)</b>을 기선으로 본 각이 됩니다." },
+        { type: "choice", q: "별 S보다 <b>더 멀리</b> 있는 별 T의 연주시차는 별 S와 비교하면?",
+          opts: ["더 크다", "<b>더 작다</b>", "같다"], ans: 1,
+          why: "<b>더 작습니다.</b> 연주시차는 거리에 <b>반비례</b>하기 때문입니다. " +
+               "먼 별일수록 연주시차가 작아요." },
+        { type: "num", q: "연주시차가 <b>몇 초(″)</b>인 별까지의 거리를 <b>1 파섹(pc)</b>이라고 할까요?",
+          unit: "″", ans: 1, tol: 0.01,
+          why: "<b>1″</b>입니다. “연주시차가 1″인 별까지의 거리를 1 파섹이라고 한다” — 이것이 파섹의 <b>정의</b>예요." },
+        { type: "ox", q: "1″(초)는 1도(°)의 <b>3600분의 1</b>이다.", ans: true,
+          why: "맞습니다. 1° = 60′ = 3600″ 입니다. 별의 연주시차는 <b>1″도 안 되는</b> 아주 작은 각이에요." }
+      ]
+    },
+    {
+      step: "3단계 · 연주시차로 거리 구하기",
+      lead: "실험실의 📏 <b>연주시차와 거리</b> 장면에서 별을 골라 확인하세요(미션 5).",
+      items: [
+        { type: "choice", q: "연주시차 <b>p(″)</b>와 거리 <b>d(pc)</b> 사이의 관계식은?",
+          opts: ["d = p", "<b>d = 1 ÷ p</b>", "d = p × 3.26"], ans: 1,
+          why: "<b>d = 1 ÷ p</b> 입니다. 파섹을 그렇게 정의했기 때문에 이렇게 간단해집니다." },
+        { type: "num", q: "연주시차가 <b>0.5″</b>인 별까지의 거리는 몇 pc 일까요?",
+          unit: "pc", ans: 2, tol: 0.1,
+          why: "1 ÷ 0.5 = <b>2 pc</b> 입니다." },
+        { type: "num", q: "연주시차가 <b>0.1″</b>인 별까지의 거리는 몇 pc 일까요?",
+          unit: "pc", ans: 10, tol: 0.3,
+          why: "1 ÷ 0.1 = <b>10 pc</b> 입니다." },
+        { type: "num", q: "<b>1 pc</b>은 약 몇 <b>광년</b>일까요? (소수 첫째 자리까지)",
+          unit: "광년", ans: 3.26, tol: 0.2,
+          why: "약 <b>3.26 광년</b>입니다. 빛이 3년 3개월쯤 달려야 닿는 거리예요." },
+        { type: "tbl", q: "실험실에서 별을 골라 연주시차와 거리를 읽어 표를 채우세요.",
+          head: ["별", "연주시차 (″)", "거리 (pc)"],
+          rows: ["프록시마 센타우리", "시리우스", "베가"] },
+        { type: "text", q: "위 표에서 <b>연주시차 × 거리</b>를 각각 계산해 보세요. " +
+               "무엇을 알 수 있나요?",
+          why: "세 별 모두 <b>거의 1</b>이 나옵니다. 연주시차와 거리가 <b>반비례</b>하기 때문이에요.<br>" +
+               "곱해서 1이 된다는 것은 <b>d = 1 ÷ p</b> 와 같은 말입니다." }
+      ]
+    },
+    {
+      step: "4단계 · 기선을 늘리면",
+      lead: "실험실에서 <b>공전 궤도의 크기</b>를 키워 보세요(미션 6).",
+      items: [
+        { type: "choice", q: "어느 별의 시차를 <b>행성의 공전 궤도</b>를 이용해 측정할 때, " +
+               "<b>지구</b>에서 재는 것과 <b>목성</b>에서 재는 것 중 시차가 <b>더 크게</b> 측정되는 쪽은?",
+          opts: ["지구", "<b>목성</b>", "똑같다"], ans: 1,
+          why: "<b>목성</b>입니다. 목성의 공전 궤도가 지구보다 <b>약 5배</b> 크기 때문에 " +
+               "기선이 5배 길어지고, 시차도 약 5배로 크게 측정됩니다." },
+        { type: "text", q: "위 문제에서 <b>그렇게 생각한 까닭</b>을 <b>기선</b>이라는 말을 넣어 설명해 보세요.",
+          why: "목성의 공전 궤도가 지구보다 훨씬 크므로 두 관측 지점 사이의 거리, 즉 <b>기선이 더 깁니다.</b> " +
+               "기선이 길수록 두 시선이 이루는 각이 커지므로 시차가 크게 측정됩니다.<br>" +
+               "책상 위에서 <b>구멍 사이를 벌렸더니 시차가 커진 것</b>과 똑같은 이야기입니다." },
+        { type: "num", q: "만약 지구의 공전 궤도가 <b>3배</b> 커진다면, 같은 별의 연주시차는 원래의 몇 배가 될까요?",
+          unit: "배", ans: 3, tol: 0.2,
+          why: "<b>3배</b>입니다. 기선이 3배 길어지면 시차도 약 3배가 됩니다(각이 아주 작을 때)." },
+        { type: "ox", q: "책상 위에서 <b>구멍 사이를 벌리는 것</b>과 <b>목성에서 관측하는 것</b>은 " +
+               "결국 같은 이야기이다.", ans: true,
+          why: "맞습니다. 둘 다 <b>기선을 길게 만드는 것</b>입니다. " +
+               "규칙은 하나예요 — <b>기선이 길수록 시차가 크다.</b>" }
+      ]
+    },
+    {
+      step: "5단계 · 핵심 내용 정리",
+      lead: "",
+      items: [
+        { type: "choice", q: "시차는 관측자와 물체 사이의 거리에 ( &nbsp; )한다.",
+          opts: ["비례", "<b>반비례</b>"], ans: 1,
+          why: "<b>반비례</b>합니다. 멀수록 시차가 작아져요." },
+        { type: "choice", q: "연주시차는 지구와 별 사이의 거리에 ( &nbsp; )한다.",
+          opts: ["비례", "<b>반비례</b>"], ans: 1,
+          why: "<b>반비례</b>합니다. <b>d = 1 ÷ p</b> 가 그 관계를 그대로 보여 줍니다." },
+        { type: "choice", q: "두 관측 지점 사이의 거리가 멀수록 시차는 ( &nbsp; )한다.",
+          opts: ["<b>증가</b>", "감소"], ans: 0,
+          why: "<b>증가</b>합니다. 기선이 길수록 시차가 커집니다." },
+        { type: "text", q: "이 단원에서 배운 것을 <b>한 문장</b>으로 정리해 보세요.<br>" +
+               "<em>(‘시차’와 ‘거리’를 넣어서 써 보면 좋습니다.)</em>",
+          why: "예시 — <b>“별이 멀수록 연주시차가 작아지므로, 연주시차를 재면 별까지의 거리를 알 수 있다. " +
+               "거리(pc)는 연주시차(″)의 역수, 곧 1 ÷ 연주시차이다.”</b>" }
+      ]
+    }
+  ];
+
+  /* ---------------------------------------------------------
+     화면 그리기
+     --------------------------------------------------------- */
+  var ctrls = [], submitted = false, lastInfo = null, lastPages = null;
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  /* 지구 공전과 연주시차 그림 (1단계용) */
+  function orbitFigure() {
+    return '<div class="fig"><svg viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">' +
+      /* 궤도 */
+      '<ellipse cx="120" cy="130" rx="80" ry="30" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 5"/>' +
+      '<circle cx="120" cy="130" r="9" fill="#fde047"/>' +
+      '<text x="120" y="172" fill="#e2e8f0" font-size="14" text-anchor="middle">태양</text>' +
+      /* 지구 A, B */
+      '<circle cx="40" cy="130" r="7" fill="#38bdf8"/>' +
+      '<text x="40" y="156" fill="#e2e8f0" font-size="14" font-weight="bold" text-anchor="middle">A (1월)</text>' +
+      '<circle cx="200" cy="130" r="7" fill="#f472b6"/>' +
+      '<text x="200" y="156" fill="#e2e8f0" font-size="14" font-weight="bold" text-anchor="middle">B (7월)</text>' +
+      /* 별 S */
+      '<circle cx="420" cy="80" r="10" fill="#fde047"/>' +
+      '<text x="420" y="60" fill="#e2e8f0" font-size="15" font-weight="bold" text-anchor="middle">별 S</text>' +
+      /* 시선 */
+      '<line x1="40" y1="130" x2="620" y2="24" stroke="#38bdf8" stroke-width="2"/>' +
+      '<line x1="200" y1="130" x2="620" y2="52" stroke="#f472b6" stroke-width="2"/>' +
+      /* 배경 */
+      '<text x="600" y="16" fill="#e2e8f0" font-size="13" text-anchor="end">먼 배경 별들</text>' +
+      '<text x="470" y="120" fill="#e2e8f0" font-size="14">∠ASB 의 절반 = 연주시차</text>' +
+      '</svg></div>';
+  }
+
+  function build() {
+    var host = document.getElementById("sheet");
+    host.innerHTML = "";
+    var qno = 0;
+    SHEET.forEach(function (stepDef, si) {
+      host.appendChild(el("h2", null, '<span class="step">' + (si + 1) + '</span>' + stepDef.step));
+      if (stepDef.lead) host.appendChild(el("p", "lead", stepDef.lead));
+      if (stepDef.figure) host.appendChild(el("div", null, orbitFigure()).firstChild);
+      stepDef.items.forEach(function (it) {
+        qno++;
+        var box = el("div", "qbox");
+        box.appendChild(el("p", "qtitle", '<span class="qno">' + qno + '</span>' + it.q));
+        var c = renderItem(it, box);
+        c.def = it; c.no = qno; c.step = si;
+        c.ansBox = el("div", "ans hidden");
+        box.appendChild(c.ansBox);
+        ctrls.push(c);
+        host.appendChild(box);
+      });
+    });
+    restore();
+  }
+
+  function renderItem(it, box) {
+    if (it.type === "choice" || it.type === "ox") {
+      var opts = it.type === "ox" ? ["O (맞다)", "X (아니다)"] : it.opts;
+      var wrap = el("div", it.type === "ox" ? "opts ox-row" : "opts");
+      wrap.style.display = "flex";
+      wrap.style.flexDirection = it.type === "ox" ? "row" : "column";
+      wrap.style.gap = "8px";
+      var pick = -1, btns = [];
+      opts.forEach(function (t, i) {
+        var b = el("button", "opt", (it.type === "ox" ? "" : "④①②③".charAt(i + 1) + " ") + t);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (submitted) { K.toast("제출한 뒤에는 답을 고칠 수 없습니다.", "warn"); return; }
+          pick = i;
+          btns.forEach(function (x, j) { x.classList.toggle("on", j === i); });
+          save();
+        });
+        btns.push(b); wrap.appendChild(b);
+      });
+      box.appendChild(wrap);
+      var right = it.type === "ox" ? (it.ans ? 0 : 1) : it.ans;
+      return {
+        get: function () { return pick; },
+        set: function (v) { pick = v; btns.forEach(function (x, j) { x.classList.toggle("on", j === v); }); },
+        forPdf: function () { return pick < 0 ? "" : stripTags(opts[pick]); },
+        grade: function () { return pick === right; },
+        rightText: function () { return stripTags(opts[right]); },
+        lock: function () { btns.forEach(function (b) { b.disabled = true; }); },
+        markAnswer: function () {
+          btns.forEach(function (b, j) {
+            if (j === right) b.classList.add("right");
+            else if (j === pick) b.classList.add("wrong");
+          });
+        }
+      };
+    }
+
+    if (it.type === "num") {
+      var w = el("div", "numwrap");
+      var inp = el("input"); inp.type = "text"; inp.inputMode = "decimal";
+      inp.placeholder = "숫자만 쓰세요";
+      inp.addEventListener("input", save);
+      w.appendChild(inp); w.appendChild(el("span", "unit", it.unit || ""));
+      box.appendChild(w);
+      return {
+        get: function () { return inp.value; },
+        set: function (v) { inp.value = v || ""; },
+        forPdf: function () { return inp.value ? inp.value + " " + (it.unit || "") : ""; },
+        grade: function () {
+          var v = parseFloat(String(inp.value).replace(/[^0-9.\-]/g, ""));
+          return isFinite(v) && Math.abs(v - it.ans) <= (it.tol || 0.01);
+        },
+        rightText: function () { return it.ans + " " + (it.unit || ""); },
+        lock: function () { inp.disabled = true; }
+      };
+    }
+
+    if (it.type === "text") {
+      var ta = el("textarea");
+      ta.placeholder = "여기에 자기 말로 써 보세요.";
+      ta.addEventListener("input", save);
+      box.appendChild(ta);
+      return {
+        get: function () { return ta.value; },
+        set: function (v) { ta.value = v || ""; },
+        forPdf: function () { return ta.value; },
+        lock: function () { ta.disabled = true; }
+      };
+    }
+
+    if (it.type === "tbl") {
+      var scroll = el("div", "tablescroll");
+      var tb = el("table", "grid");
+      var thead = el("thead"), tr = el("tr");
+      it.head.forEach(function (t) { tr.appendChild(el("th", null, t)); });
+      thead.appendChild(tr); tb.appendChild(thead);
+      var body = el("tbody"), inputs = [];
+      it.rows.forEach(function (rowName) {
+        var r = el("tr");
+        r.appendChild(el("td", "left", "<b>" + rowName + "</b>"));
+        var line = [];
+        for (var ci = 1; ci < it.head.length; ci++) {
+          var td = el("td");
+          var i2 = el("input"); i2.type = "text";
+          i2.addEventListener("input", save);
+          td.appendChild(i2); r.appendChild(td); line.push(i2);
+        }
+        inputs.push(line); body.appendChild(r);
+      });
+      tb.appendChild(body); scroll.appendChild(tb); box.appendChild(scroll);
+      return {
+        get: function () { return inputs.map(function (l) { return l.map(function (i) { return i.value; }); }); },
+        set: function (v) {
+          if (!v) return;
+          v.forEach(function (l, ri) { (l || []).forEach(function (val, ci) { if (inputs[ri] && inputs[ri][ci]) inputs[ri][ci].value = val; }); });
+        },
+        forPdfTable: function () {
+          return [it.head].concat(inputs.map(function (l, ri) {
+            return [it.rows[ri]].concat(l.map(function (i) { return i.value || "-"; }));
+          }));
+        },
+        forPdf: function () { return ""; },
+        lock: function () { inputs.forEach(function (l) { l.forEach(function (i) { i.disabled = true; }); }); }
+      };
+    }
+
+    return { get: function () { return null; }, set: function () {}, forPdf: function () { return ""; }, lock: function () {} };
+  }
+
+  function save() {
+    if (submitted) return;
+    try { sessionStorage.setItem("px_worksheet", JSON.stringify(ctrls.map(function (c) { return c.get(); }))); } catch (e) {}
+  }
+  function restore() {
+    try {
+      var v = JSON.parse(sessionStorage.getItem("px_worksheet") || "null");
+      if (v && v.length === ctrls.length) ctrls.forEach(function (c, i) { c.set(v[i]); });
+    } catch (e) {}
+  }
+
+  function score() {
+    var got = 0, all = 0;
+    ctrls.forEach(function (c) { if (!c.grade) return; all++; if (c.grade()) got++; });
+    return { got: got, all: all };
+  }
+
+  function makePdf(info) {
+    var sc = score();
+    var doc = K.createDoc({
+      title: "연주시차 학습지",
+      subtitle: "중학교 3학년 과학 · 별과 우주 [9과23-01]",
+      meta: { grade: info.grade, cls: info.cls, num: info.num, name: info.name,
+              when: info.when, right: "자동 채점 " + sc.got + " / " + sc.all },
+      footer: "연주시차 실험실"
+    });
+    var qi = 0;
+    SHEET.forEach(function (stepDef) {
+      doc.h1(stepDef.step);
+      if (stepDef.lead) doc.p(stripTags(stepDef.lead), { size: 20, lh: 29 });
+      stepDef.items.forEach(function () {
+        var c = ctrls[qi++], it = c.def;
+        doc.h2(c.no + ". " + stripTags(it.q));
+        if (c.forPdfTable) {
+          var rows = c.forPdfTable();
+          doc.table(rows, rows[0].map(function (_, i) { return i === 0 ? 1.8 : 1; }));
+        } else {
+          doc.box(null, c.forPdf(), { minLines: it.type === "text" ? 3 : 1 });
+        }
+        if (c.grade) {
+          var ok = c.grade();
+          doc.mark(ok ? "정답" : "오답 · 정답은 " + c.rightText(), ok);
+        }
+      });
+      doc.gap(6);
+    });
+    doc.pageBreak();
+    doc.h1("정답과 해설");
+    var qj = 0;
+    SHEET.forEach(function (stepDef) {
+      stepDef.items.forEach(function () {
+        var c = ctrls[qj++];
+        if (!c.def.why) return;
+        doc.h2(c.no + ". " + stripTags(c.def.q));
+        doc.p(stripTags(c.def.why), { size: 21, lh: 30, color: "#111827" });
+        doc.gap(4);
+      });
+    });
+    return doc.finish();
+  }
+
+  function stripTags(s) {
+    return String(s || "").replace(/<br\s*\/?>/gi, " ").replace(/&nbsp;/g, " ").replace(/<[^>]+>/g, "");
+  }
+
+  function applyLockState() {
+    document.body.classList.toggle("locked", submitted);
+    document.getElementById("btnClear").classList.toggle("hidden", submitted);
+    document.getElementById("btnPdf").textContent = submitted ? "PDF 다시 받기" : "PDF로 저장하기";
+    document.getElementById("btnAnswers").textContent =
+      submitted ? "정답·해설 모두 보기" : "정답 확인 (PDF 저장 후 열림) 🔒";
+    if (submitted) {
+      var sc = score(), band = document.getElementById("scoreBand");
+      band.classList.remove("hidden");
+      band.textContent = "✅ 제출했습니다 · 자동 채점 " + sc.got + " / " + sc.all +
+                         " (서술·표는 선생님이 읽습니다)";
+      document.getElementById("saveMsg").textContent = "제출이 끝났습니다. 정답과 해설을 확인하세요.";
+      ctrls.forEach(function (c) { if (c.lock) c.lock(); });
+    }
+  }
+
+  function revealAnswers() {
+    ctrls.forEach(function (c) {
+      if (c.markAnswer) c.markAnswer();
+      if (!c.def.why) return;
+      var ok = c.grade ? c.grade() : null;
+      c.ansBox.className = "ans " + (ok === null ? "ok" : (ok ? "ok" : "no"));
+      c.ansBox.innerHTML = (ok === null ? "💡 <b>이렇게 생각해 보세요</b><br>"
+                                        : (ok ? "⭕ <b>정답입니다.</b><br>" : "❌ <b>정답은 「" + c.rightText() + "」 입니다.</b><br>"))
+                           + c.def.why;
+      c.ansBox.classList.remove("hidden");
+    });
+  }
+
+  function bind() {
+    document.getElementById("btnPdf").addEventListener("click", function () {
+      if (submitted) {
+        if (!lastInfo || !lastPages) return;
+        K.downloadBlob(K.buildPdf(lastPages), K.makeFileName("연주시차학습지", lastInfo));
+        K.toast("다시 내려받았습니다.", "ok");
+        return;
+      }
+      if (!confirm("PDF로 저장하면 답을 고칠 수 없고 정답이 열립니다.\n다 썼는지 확인했나요?")) return;
+      K.askStudentInfo({}, function (info) {
+        try {
+          var pages = makePdf(info);
+          lastInfo = info; lastPages = pages;
+          K.downloadBlob(K.buildPdf(pages), K.makeFileName("연주시차학습지", info));
+          submitted = true;
+          try { sessionStorage.removeItem("px_worksheet"); } catch (e) {}
+          applyLockState(); revealAnswers();
+          K.toast("제출했습니다. 정답과 해설이 열렸습니다.", "ok");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (err) {
+          K.toast("PDF를 만들지 못했습니다: " + err.message, "no");
+        }
+      });
+    });
+
+    document.getElementById("btnClear").addEventListener("click", function () {
+      if (submitted) return;
+      if (!confirm("쓴 내용을 모두 지울까요?")) return;
+      ctrls.forEach(function (c) { c.set(c.def.type === "choice" || c.def.type === "ox" ? -1 : ""); });
+      try { sessionStorage.removeItem("px_worksheet"); } catch (e) {}
+    });
+
+    document.getElementById("btnAnswers").addEventListener("click", function () {
+      if (!submitted) { K.toast("정답은 PDF로 저장(제출)한 뒤에 열립니다.", "warn"); return; }
+      revealAnswers();
+      K.toast("정답과 해설을 모두 열었습니다.", "ok");
+    });
+  }
+
+  build(); bind(); applyLockState();
+
+  window.PXSheet = {
+    ctrls: ctrls, score: score, makePdf: makePdf, SHEET: SHEET,
+    isSubmitted: function () { return submitted; },
+    forceSubmit: function (info) {
+      var pages = makePdf(info); lastInfo = info; lastPages = pages;
+      submitted = true; applyLockState(); revealAnswers();
+      return pages;
+    }
+  };
+})();
+</script>
+</body>
+</html>
