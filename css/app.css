@@ -687,3 +687,68 @@ input[type="range"] { width: 100%; height: 34px; accent-color: #4f46e5; cursor: 
   .opt.right::before { background: #000 !important;
     -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* =========================================================
+   🔑 정답지 (선생님용) — worksheet.html?key
+   ---------------------------------------------------------
+   학생용 학습지와 **같은 문항 자료(SHEET)를 그대로** 읽어 만든다.
+   정답을 따로 적어 두지 않으므로 문항을 고치면 정답지가 저절로 따라온다.
+   기본은 '정답만'. 문제·해설은 선생님이 체크해서 켠다.
+   ========================================================= */
+#keyRoot { display: none; }
+body.keymode #keyRoot { display: block; }
+body.keymode .wrap > .card,
+body.keymode .wrap > .savebar,
+body.keymode .wrap > .scoreband,
+body.keymode .wrap > .print-head { display: none !important; }
+
+.keybar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.keybar h2 { margin: 0; flex: 0 0 auto; }
+.keybar .grow { flex: 1 1 auto; }
+.keybar label {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 17px; font-weight: bold; cursor: pointer;
+}
+.keybar label input { width: 20px; height: 20px; }
+
+.kstep {
+  margin: 20px 0 8px; padding-bottom: 5px;
+  font-size: 19px; font-weight: bold; color: var(--brand);
+  border-bottom: 2px solid var(--line);
+  break-after: avoid;
+}
+.kstep:first-child { margin-top: 0; }
+.klist { columns: 2; column-gap: 24px; }
+.krow {
+  break-inside: avoid; -webkit-column-break-inside: avoid;
+  display: flex; gap: 9px; margin: 0 0 9px;
+}
+.kno {
+  flex: 0 0 auto; min-width: 27px; height: 25px; line-height: 25px;
+  text-align: center; background: var(--brand); color: #fff;
+  border-radius: 7px; font-weight: bold; font-size: 15px;
+}
+.kbody { flex: 1 1 auto; min-width: 0; }
+.ka { font-size: 17px; font-weight: bold; }
+.kq, .kwhy { display: none; font-size: 15px; color: var(--sub); }
+.kq { margin-bottom: 3px; }
+.kwhy { margin-top: 3px; }
+body.showq .kq, body.showwhy .kwhy { display: block; }
+
+@media print {
+  /* 정답지는 학습지와 달리 **한 쪽에 담는 것**이 목표라 더 작게 간다. */
+  body.keymode { font-size: 9.5pt; }
+  body.keymode .top { display: none !important; }
+  .kstep { font-size: 10.5pt; margin: 4mm 0 2mm; padding-bottom: 1mm; }
+  .kstep:first-child { margin-top: 0; }
+  .klist { column-gap: 8mm; }
+  .krow { gap: 2mm; margin-bottom: 2mm; }
+  .kno {
+    min-width: 6mm; height: 4.6mm; line-height: 4.6mm;
+    font-size: 8pt; border-radius: 1.2mm;
+    background: #000 !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .ka { font-size: 9.5pt; }
+  .kq, .kwhy { font-size: 8.5pt; }
+}
