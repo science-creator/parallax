@@ -269,6 +269,10 @@
       g.fillText("시차 " + deg.toFixed(1) + "°", 16, 26);
       g.fillStyle = COL.faint; g.font = "14px sans-serif";
       g.fillText("눈금 차이 " + Math.abs(readings[0] - readings[1]).toFixed(1) + " 칸", 16, 48);
+      /* ⚠ 가로(60 cm)와 세로(110 cm)의 축척이 다르다. 눈금 1~20 을 읽을 수 있게
+         가로를 늘려 놓았기 때문이다. 그래서 **그림의 벌어진 각은 실제보다 크다.**
+         겹쳐 보이는 눈금 값은 정확하므로, 각도는 숫자를 보게 한다. */
+      g.fillText("(가로를 늘려 그려서 각이 크게 보입니다 — 각도는 위 숫자를 보세요)", 16, 68);
     } else {
       g.fillStyle = COL.faint; g.font = "14px sans-serif"; g.textAlign = "left";
       g.fillText("👀 '둘 다' 를 누르면 두 시선을 겹쳐 볼 수 있습니다", 16, 26);
@@ -279,7 +283,10 @@
   function drawOrbit(g) {
     var st = P.info(star(), S.orbit);
     var cx = cssW * 0.24, cy = cssH * 0.56;
-    var orbR = clamp(cssH * 0.16, 26, 78) * (0.65 + S.orbit * 0.07);
+    /* 궤도 반지름은 **배수에 정비례**해야 한다. 화면에 "궤도 6배" 라고 써 놓고
+       그림이 1.5배만 커지면(예전 `0.65 + orbit*0.07`) 미션 6 이 통째로 흔들린다.
+       최대(6배)를 무대에 맞추고 나머지를 그 비율로 그린다. */
+    var orbR = Math.min(cssW * 0.16, cssH * 0.26) * (S.orbit / 6);
 
     /* 태양과 궤도 */
     g.strokeStyle = "rgba(148,163,184,.45)"; g.lineWidth = 1.5;
