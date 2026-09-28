@@ -95,7 +95,7 @@
       scene: "orbit", setup: { starName: "시리우스", month: "A", orbit: 1 },
       allow: ["month", "star"],
       predict: { q: "연주시차는 6개월 간격으로 잰 시차 ∠ASB 의?",
-                 opts: ["그대로(전체)", "<b>절반</b>", "2배"], ans: 1 },
+                 opts: ["그대로(전체)", "절반", "2배"], ans: 1 },
       goals: [{ key: "both", text: "<b>두 자리 겹쳐 보기</b>로 ∠ASB 확인하기" }],
       why: "<b>절반</b>입니다. 선생님 학습지의 문장 그대로예요 — " +
            "“지구에서 측정한 별 S의 시차 ∠ASB 의 <b>절반</b>에 해당하는 값을 연주 시차라고 한다.”<br>" +
@@ -110,7 +110,7 @@
       scene: "dist", setup: { starName: "프록시마 센타우리" },
       allow: ["star"],
       predict: { q: "연주시차가 1″인 별까지의 거리를 무엇이라고 할까?",
-                 opts: ["1 광년", "<b>1 파섹(pc)</b>", "1 천문단위(AU)"], ans: 1 },
+                 opts: ["1 광년", "1 파섹(pc)", "1 천문단위(AU)"], ans: 1 },
       goals: [{ key: "sirius", text: "<b>시리우스</b>를 골라 연주시차와 거리 확인하기" }],
       why: "<b>거리(pc)</b> 가 나옵니다. 시리우스의 연주시차는 약 <b>0.379″</b>이고, " +
            "1 ÷ 0.379 ≈ <b>2.6 pc</b> — 표에 적힌 거리와 같습니다.<br>" +
@@ -696,7 +696,9 @@
       var opts = $("mOpts"); opts.innerHTML = "";
       M.predict.opts.forEach(function (t, i) {
         var b = document.createElement("button");
-        b.type = "button"; b.className = "opt"; b.innerHTML = t;
+        b.type = "button"; b.className = "opt";
+        /* 예측 보기에는 굵은 글씨를 쓰지 않는다 — 정답만 굵으면 답이 드러난다(2026-09-28). */
+        b.innerHTML = String(t).replace(/<\/?b>/g, "");
         b.addEventListener("click", function () {
           S.predictPick = i; S.missionState = "ready"; renderMissionBody();
         });
